@@ -1,6 +1,7 @@
-const Block = require("./Block");
-const { GENESIS_DATA } = require("./config");
-const cryptoHash = require("./crypto-hash");
+import { describe, expect, it } from "@jest/globals";
+import Block from "./Block";
+import { GENESIS_DATA } from "./config";
+import cryptoHash from "./crypto-hash";
 
 describe("Block", () => {
   const timestamp = "a-date";
@@ -15,7 +16,7 @@ describe("Block", () => {
     data,
   });
 
-  it("has a timestamp, lasthash, hash, and data property", () => {
+  it("has a timestamp, lasthash, and data property", () => {
     expect(block.timestamp).toEqual(timestamp);
     expect(block.lastHash).toEqual(lastHash);
     expect(block.hash).toEqual(hash);
@@ -36,7 +37,7 @@ describe("Block", () => {
 
   describe("mineBlock()", () => {
     const lastBlock = Block.genesis();
-    const data = "mined data";
+    const data = ["mined data"];
     const minedBlock = Block.mineBlock({ lastBlock, data });
 
     it("returns a Block instance", () => {
@@ -56,8 +57,10 @@ describe("Block", () => {
       expect(minedBlock.timestamp).not.toEqual(undefined);
     });
 
-    it('creates a SHA-256 `hash` based on the proper inputs', () => {
-        expect(minedBlock.hash).toEqual(cryptoHash(minedBlock.timestamp, lastBlock.hash, data))
-    })
+    it("creates a SHA-256 `hash` based on the proper inputs", () => {
+      expect(minedBlock.hash).toEqual(
+        cryptoHash(minedBlock.timestamp, lastBlock.hash, ...data)
+      );
+    });
   });
 });
