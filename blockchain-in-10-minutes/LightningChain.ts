@@ -4,13 +4,16 @@
  * Before it
  */
 
-const lightningHash = (data) => {
+const lightningHash = (data: string): string => {
   return data + "*";
 };
 
 // The block(node) itself
 class Block {
-  constructor(data, hash, lastHash) {
+  public data: string;
+  public hash: string;
+  public lastHash: string;
+  constructor(data: string, hash: string, lastHash: string) {
     // what the block is storing
     this.data = data;
 
@@ -24,6 +27,7 @@ class Block {
 
 // The blockchain itself
 class Blockchain {
+  public chain: Block[] = [];
   constructor() {
     // genesis block an initial harcoded block
     const genesis = new Block(
@@ -34,10 +38,10 @@ class Blockchain {
 
     // for us to have a blockchain we need a chain
     // the first value on the chain will be the genesis block
-    this.chain = [genesis];
+    this.chain = [...this.chain, genesis];
   }
 
-  addBlock(data) {
+  addBlock(data: string): void {
     const lastHash = this.chain[this.chain.length - 1].hash;
 
     const hash = lightningHash(data + lastHash);
