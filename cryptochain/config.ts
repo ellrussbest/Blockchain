@@ -1,3 +1,4 @@
+export const hexToBinary = require("hex-to-binary");
 import { BlockContent } from "./Block";
 
 const INITIAL_DIFFICULTY = 3;

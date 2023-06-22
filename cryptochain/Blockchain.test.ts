@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import Block from "./Block";
 import Blockchain from "./Blockchain";
+import cryptoHash from "./crypto-hash";
 
 describe("Blockchain", () => {
   let blockchain: Blockchain;
@@ -53,6 +54,38 @@ describe("Blockchain", () => {
       describe("and the chain contains a block with an invalid field", () => {
         it("returns false", () => {
           blockchain.chain[2].data = ["some-bad-evil-data"];
+          expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+        });
+      });
+
+      describe("and the chain contains a block with a jumped difficulty", () => {
+        it("returns false", () => {
+          const lastBlock = blockchain.chain[blockchain.chain.length - 1];
+          const lastHash = lastBlock.hash;
+          const timestamp = Date.now().toString();
+          const nonce = 0;
+          const data: string[] = [];
+          const difficulty = lastBlock.difficulty - 3;
+
+          const hash = cryptoHash(
+            timestamp,
+            lastHash,
+            difficulty.toString(),
+            nonce.toString(),
+            ...data
+          );
+
+          const badBlock = new Block({
+            timestamp,
+            lastHash,
+            difficulty,
+            nonce,
+            data,
+            hash,
+          });
+
+          blockchain.chain.push(badBlock);
+
           expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
         });
       });
