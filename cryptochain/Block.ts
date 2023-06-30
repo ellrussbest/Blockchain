@@ -1,6 +1,6 @@
-import { GENESIS_DATA, MINE_RATE } from "./config";
+import { GENESIS_DATA, MINE_RATE } from "./utils";
 import cryptoHash from "./crypto-hash";
-import { hexToBinary } from "./config";
+import { hexToBinary } from "./utils";
 
 namespace block {
   /** Functions */
