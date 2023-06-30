@@ -1,60 +1,66 @@
-/**
- * Fundamentally a blockchain is a list of linked blocks
- * Each new block in the chain contains a link to the last block that came
- * Before it
- */
+namespace Blockchain {
+  const createHash = (data: string, previousBlockHash: string) => {
+    return data + previousBlockHash + "*";
+  };
 
-const lightningHash = (data: string): string => {
-  return data + "*";
-};
+  export const verifyBlockchain = (blockchain: Blockchain): boolean => {
+    // we want to prove that the blockchain starts with the genesis data
+    if (
+      blockchain.chain[0].data !== "genesisData" ||
+      blockchain.chain[0].hash !== "genesisHash" ||
+      blockchain.chain[0].previousBlockHash !== "genesisPreviousBlockHash"
+    ) {
+      return false;
+    }
 
-// The block(node) itself
-class Block {
-  public data: string;
-  public hash: string;
-  public lastHash: string;
-  constructor(data: string, hash: string, lastHash: string) {
-    // what the block is storing
-    this.data = data;
+    for (let i = 1; i < blockchain.chain.length; i++) {
+      if (
+        blockchain.chain[i - 1].hash !== blockchain.chain[i].previousBlockHash
+      )
+        return false;
+    }
+    return true;
+  };
 
-    // cryptographic transfomation of the data
-    this.hash = hash;
+  class Block {
+    public data: string;
+    public hash: string;
+    public previousBlockHash: string;
 
-    // link between blocks in the blockchain
-    this.lastHash = lastHash;
+    constructor(data: string, hash: string, previousBlockHash: string) {
+      this.data = data;
+      this.hash = hash;
+      this.previousBlockHash = previousBlockHash;
+    }
+  }
+
+  export class Blockchain {
+    public chain: Block[];
+
+    constructor() {
+      this.chain = [];
+      const genesisBlock = new Block(
+        "genesisData",
+        "genesisHash",
+        "genesisPreviousBlockHash"
+      );
+      this.chain.push(genesisBlock);
+    }
+
+    addBlock(data: string) {
+      const previousBlockHash = this.chain[this.chain.length - 1].hash;
+      const hash = createHash(data, previousBlockHash);
+      const newBlock = new Block(data, hash, previousBlockHash);
+      this.chain.push(newBlock);
+      return this;
+    }
   }
 }
 
-// The blockchain itself
-class Blockchain {
-  public chain: Block[] = [];
-  constructor() {
-    // genesis block an initial harcoded block
-    const genesis = new Block(
-      "genesis-data",
-      "genesis-hash",
-      "genesis-lasthash"
-    );
+const { Blockchain: blockchain, verifyBlockchain } = Blockchain;
 
-    // for us to have a blockchain we need a chain
-    // the first value on the chain will be the genesis block
-    this.chain = [...this.chain, genesis];
-  }
+const LightningChain = new blockchain();
+LightningChain.addBlock("first").addBlock("second").addBlock("third");
 
-  addBlock(data: string): void {
-    const lastHash = this.chain[this.chain.length - 1].hash;
-
-    const hash = lightningHash(data + lastHash);
-
-    const block = new Block(data, hash, lastHash);
-
-    this.chain.push(block);
-  }
-}
-
-const fooBlockchain = new Blockchain();
-fooBlockchain.addBlock("one");
-fooBlockchain.addBlock("two");
-fooBlockchain.addBlock("three");
-
-console.log(fooBlockchain);
+console.log(LightningChain);
+console.log(verifyBlockchain(LightningChain));
