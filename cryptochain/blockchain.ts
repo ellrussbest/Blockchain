@@ -40,7 +40,7 @@ export namespace blockchain {
       this.chain = [...this.chain, genesis()];
     }
 
-    addBlock(data: string[]): void {
+    addBlock(data: any[]): void {
       const lastBlock = this.chain[this.chain.length - 1];
       this.chain.push(
         mineBlock({
