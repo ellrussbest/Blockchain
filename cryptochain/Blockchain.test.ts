@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import Block from "./Block";
-import Blockchain from "./Blockchain";
+import Block, { genesis } from "./block";
+import Blockchain, { isValidChain } from "./Blockchain";
 import cryptoHash from "./crypto-hash";
 
 describe("Blockchain", () => {
@@ -19,7 +19,7 @@ describe("Blockchain", () => {
   });
 
   it("starts with the genesis block", () => {
-    expect(blockchain.chain[0]).toEqual(Block.genesis());
+    expect(blockchain.chain[0]).toEqual(genesis());
   });
 
   it("adds a new block to the chain", () => {
@@ -33,7 +33,7 @@ describe("Blockchain", () => {
     describe("when the chain does not start with the genesis block", () => {
       it("returns false", () => {
         blockchain.chain[0].data = ["fake genesis"];
-        expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+        expect(isValidChain(blockchain.chain)).toBe(false);
       });
     });
 
@@ -44,24 +44,24 @@ describe("Blockchain", () => {
         blockchain.addBlock(["Battlestart Galactica"]);
       });
 
-      describe("and a lastHash reference has changed", () => {
+      describe("and a previousBlockHash reference has changed", () => {
         it("returns false", () => {
-          blockchain.chain[2].lastHash = "broken-hash";
-          expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+          blockchain.chain[2].previousBlockHash = "broken-hash";
+          expect(isValidChain(blockchain.chain)).toBe(false);
         });
       });
 
       describe("and the chain contains a block with an invalid field", () => {
         it("returns false", () => {
           blockchain.chain[2].data = ["some-bad-evil-data"];
-          expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+          expect(isValidChain(blockchain.chain)).toBe(false);
         });
       });
 
       describe("and the chain contains a block with a jumped difficulty", () => {
         it("returns false", () => {
           const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-          const lastHash = lastBlock.hash;
+          const previousBlockHash = lastBlock.hash;
           const timestamp = Date.now().toString();
           const nonce = 0;
           const data: string[] = [];
@@ -69,7 +69,7 @@ describe("Blockchain", () => {
 
           const hash = cryptoHash(
             timestamp,
-            lastHash,
+            previousBlockHash,
             difficulty.toString(),
             nonce.toString(),
             ...data
@@ -77,7 +77,7 @@ describe("Blockchain", () => {
 
           const badBlock = new Block({
             timestamp,
-            lastHash,
+            previousBlockHash,
             difficulty,
             nonce,
             data,
@@ -86,13 +86,13 @@ describe("Blockchain", () => {
 
           blockchain.chain.push(badBlock);
 
-          expect(Blockchain.isValidChain(blockchain.chain)).toBe(false);
+          expect(isValidChain(blockchain.chain)).toBe(false);
         });
       });
 
       describe("and the chain does not contain any invalid blocks", () => {
         it("returns true", () => {
-          expect(Blockchain.isValidChain(blockchain.chain)).toBe(true);
+          expect(isValidChain(blockchain.chain)).toBe(true);
         });
       });
     });

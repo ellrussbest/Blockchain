@@ -1,4 +1,4 @@
-namespace Blockchain {
+namespace blockchain {
   const createHash = (data: string, previousBlockHash: string) => {
     return data + previousBlockHash + "*";
   };
@@ -57,9 +57,9 @@ namespace Blockchain {
   }
 }
 
-const { Blockchain: blockchain, verifyBlockchain } = Blockchain;
+const { Blockchain, verifyBlockchain } = blockchain;
 
-const LightningChain = new blockchain();
+const LightningChain = new Blockchain();
 LightningChain.addBlock("first").addBlock("second").addBlock("third");
 
 console.log(LightningChain);

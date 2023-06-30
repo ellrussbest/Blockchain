@@ -1,12 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
-import Block from "./Block";
+import Block, { genesis, mineBlock, adjustDifficulty} from "./block";
 import { GENESIS_DATA, MINE_RATE } from "./config";
 import cryptoHash from "./crypto-hash";
 import { hexToBinary } from "./config";
 
+
 describe("Block", () => {
   const timestamp = "2000";
-  const lastHash = "foo-hash";
+  const previousBlockHash = "foo-hash";
   const hash = "bar-hash";
   const nonce = 1;
   const difficulty = 1;
@@ -14,16 +15,16 @@ describe("Block", () => {
 
   const block = new Block({
     timestamp,
-    lastHash,
+    previousBlockHash,
     hash,
     data,
     nonce,
     difficulty,
   });
 
-  it("has a timestamp, lasthash, and data property", () => {
+  it("has a timestamp, previousBlockHash, and data property", () => {
     expect(block.timestamp).toEqual(timestamp);
-    expect(block.lastHash).toEqual(lastHash);
+    expect(block.previousBlockHash).toEqual(previousBlockHash);
     expect(block.hash).toEqual(hash);
     expect(block.data).toEqual(data);
     expect(block.nonce).toEqual(nonce);
@@ -31,7 +32,7 @@ describe("Block", () => {
   });
 
   describe("genesis()", () => {
-    const genesisBlock = Block.genesis();
+    const genesisBlock = genesis();
 
     it("returns a Block instance", () => {
       expect(genesisBlock instanceof Block).toBe(true);
@@ -43,17 +44,17 @@ describe("Block", () => {
   });
 
   describe("mineBlock()", () => {
-    const lastBlock = Block.genesis();
+    const lastBlock = genesis();
     const data = ["mined data"];
-    const minedBlock = Block.mineBlock({ lastBlock, data });
+    const minedBlock = mineBlock({ lastBlock, data });
 
     it("returns a Block instance", () => {
       expect(minedBlock instanceof Block).toBe(true);
     });
 
-    it("sets the `lastHash` to be the `hash` of the lastBlock", () => {
+    it("sets the `previousBlockHash` to be the `hash` of the lastBlock", () => {
       // expect(actualValue).toEqual(expectedValue)
-      expect(minedBlock.lastHash).toEqual(lastBlock.hash);
+      expect(minedBlock.previousBlockHash).toEqual(lastBlock.hash);
     });
 
     it("sets the `data`", () => {
@@ -95,7 +96,7 @@ describe("Block", () => {
   describe("adjustDifficulty()", () => {
     it("raises the difficulty for a quickly mined block", () => {
       expect(
-        Block.adjustDifficulty({
+        adjustDifficulty({
           originalBlock: block,
           timestamp: parseInt(block.timestamp) + MINE_RATE - 100,
         })
@@ -103,7 +104,7 @@ describe("Block", () => {
     });
     it("lowers the difficulty for a slowly mined block", () => {
       expect(
-        Block.adjustDifficulty({
+        adjustDifficulty({
           originalBlock: block,
           timestamp: parseInt(block.timestamp) + MINE_RATE + 100,
         })
@@ -113,7 +114,7 @@ describe("Block", () => {
       block.difficulty = -1;
 
       expect(
-        Block.adjustDifficulty({
+        adjustDifficulty({
           originalBlock: block,
           timestamp: Math.random(),
         })

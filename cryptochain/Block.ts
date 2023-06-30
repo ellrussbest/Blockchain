@@ -2,49 +2,15 @@ import { GENESIS_DATA, MINE_RATE } from "./config";
 import cryptoHash from "./crypto-hash";
 import { hexToBinary } from "./config";
 
-export interface BlockContent {
-  timestamp: string;
-  lastHash: string;
-  hash: string;
-  data: string[];
-  nonce: number;
-  difficulty: number;
-}
-
-interface MinedBlockParams {
-  lastBlock: Block;
-  data: string[];
-}
-
-interface AdjustDifficultyParams {
-  originalBlock: Block;
-  timestamp: number;
-}
-
-class Block {
-  public timestamp: string;
-  public lastHash: string;
-  public hash: string;
-  public data: string[];
-  public nonce: number;
-  public difficulty: number;
-
-  constructor(blockContent: BlockContent) {
-    this.timestamp = blockContent.timestamp;
-    this.lastHash = blockContent.lastHash;
-    this.data = blockContent.data;
-    this.hash = blockContent.hash;
-    this.nonce = blockContent.nonce;
-    this.difficulty = blockContent.difficulty;
-  }
-
-  static genesis(): Block {
+namespace block {
+  /** Functions */
+  export const genesis = (): Block => {
     return new Block(GENESIS_DATA);
-  }
+  };
 
-  static mineBlock(minedBlockParams: MinedBlockParams) {
+  export const mineBlock = (minedBlockParams: MinedBlockParams) => {
     let {
-      lastBlock: { hash: lastHash, difficulty },
+      lastBlock: { hash: previousBlockHash, difficulty },
       data,
     } = minedBlockParams;
     let timestamp: string;
@@ -54,13 +20,13 @@ class Block {
     do {
       nonce++;
       timestamp = Date.now().toString();
-      difficulty = Block.adjustDifficulty({
+      difficulty = adjustDifficulty({
         originalBlock: minedBlockParams.lastBlock,
         timestamp: parseInt(timestamp),
       });
       hash = cryptoHash(
         timestamp,
-        lastHash,
+        previousBlockHash,
         nonce.toString(),
         difficulty.toString(),
         ...data
@@ -71,15 +37,15 @@ class Block {
 
     return new Block({
       timestamp,
-      lastHash,
+      previousBlockHash,
       hash,
       data,
       difficulty,
       nonce,
     });
-  }
+  };
 
-  static adjustDifficulty(params: AdjustDifficultyParams): number {
+  export const adjustDifficulty = (params: AdjustDifficultyParams): number => {
     const { difficulty, timestamp } = params.originalBlock;
 
     if (difficulty < 1) return 1;
@@ -89,7 +55,27 @@ class Block {
     if (difference > MINE_RATE) return difficulty - 1;
 
     return difficulty + 1;
+  };
+
+  /** The block class */
+  export class Block {
+    public timestamp: string;
+    public previousBlockHash: string;
+    public hash: string;
+    public data: string[];
+    public nonce: number;
+    public difficulty: number;
+
+    constructor(blockContent: BlockContent) {
+      this.timestamp = blockContent.timestamp;
+      this.previousBlockHash = blockContent.previousBlockHash;
+      this.data = blockContent.data;
+      this.hash = blockContent.hash;
+      this.nonce = blockContent.nonce;
+      this.difficulty = blockContent.difficulty;
+    }
   }
 }
 
-export default Block;
+export default block.Block;
+export const { genesis, adjustDifficulty, mineBlock } = block;
