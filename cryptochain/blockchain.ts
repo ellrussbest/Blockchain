@@ -15,12 +15,14 @@ export namespace blockchain {
 
       if (previousBlockHash !== actualpreviousBlockHash) return false;
 
+      const dataToBeHashed = data.map((val) => JSON.stringify(val))
+
       const validatedHash = cryptoHash(
         timestamp,
         previousBlockHash,
         nonce.toString(),
         difficulty.toString(),
-        ...data
+        ...dataToBeHashed
       );
 
       if (hash !== validatedHash) return false;

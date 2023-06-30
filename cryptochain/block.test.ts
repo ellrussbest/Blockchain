@@ -45,6 +45,11 @@ describe("Block", () => {
     const lastBlock = genesis();
     const data = ["mined data"];
     const minedBlock = mineBlock({ lastBlock, data });
+    const dataToBeHashed = data.map((val) => JSON.stringify(val));
+
+    it("returns the same data", () => {
+      expect(minedBlock.data).toEqual(data);
+    });
 
     it("returns a Block instance", () => {
       expect(minedBlock instanceof Block).toBe(true);
@@ -70,7 +75,7 @@ describe("Block", () => {
           minedBlock.nonce.toString(),
           minedBlock.difficulty.toString(),
           lastBlock.hash,
-          ...data
+          ...dataToBeHashed
         )
       );
     });

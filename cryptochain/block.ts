@@ -16,6 +16,8 @@ namespace block {
     let hash: string;
     let nonce = 0;
 
+    const dataToBeHashed = data.map((val) => JSON.stringify(val))
+
     do {
       nonce++;
       timestamp = Date.now().toString();
@@ -28,7 +30,7 @@ namespace block {
         previousBlockHash,
         nonce.toString(),
         difficulty.toString(),
-        ...data
+        ...dataToBeHashed
       );
     } while (
       hexToBinary(hash).substring(0, difficulty) !== "0".repeat(difficulty)

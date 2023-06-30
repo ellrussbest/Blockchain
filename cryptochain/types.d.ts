@@ -3,14 +3,14 @@ interface BlockContent {
   timestamp: string;
   previousBlockHash: string;
   hash: string;
-  data: string[];
+  data: any[];
   nonce: number;
   difficulty: number;
 }
 
 interface MinedBlockParams {
   lastBlock: Block;
-  data: string[];
+  data: any[];
 }
 
 interface AdjustDifficultyParams {
