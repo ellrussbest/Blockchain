@@ -1,5 +1,5 @@
 import Block from "./block";
-import Blockchain from "./Blockchain";
+import Blockchain from "./blockchain";
 
 const blockchain = new Blockchain();
 

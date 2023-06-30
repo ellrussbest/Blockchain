@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import Block, { genesis } from "./block";
-import Blockchain, { isValidChain } from "./Blockchain";
+import Blockchain, { isValidChain } from "./blockchain";
 import cryptoHash from "./crypto-hash";
 
 describe("Blockchain", () => {
