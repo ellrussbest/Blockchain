@@ -1,8 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import Block, { genesis, mineBlock, adjustDifficulty } from "./block";
-import { GENESIS_DATA, MINE_RATE } from "./utils";
+import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils";
 import cryptoHash from "./crypto-hash";
-import { hexToBinary } from "./utils";
 
 describe("Block", () => {
   const timestamp = "2000";
@@ -52,7 +51,7 @@ describe("Block", () => {
     });
 
     it("sets the `previousBlockHash` to be the `hash` of the lastBlock", () => {
-      // expect(actualValue).toEqual(expectedValue)
+      // <info> expect(actualValue).toEqual(expectedValue) </info>
       expect(minedBlock.previousBlockHash).toEqual(lastBlock.hash);
     });
 
