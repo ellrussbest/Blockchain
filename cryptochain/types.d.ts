@@ -1,5 +1,5 @@
 /** Block interfaces */
-interface BlockContent {
+export interface BlockContent {
   timestamp: string;
   previousBlockHash: string;
   hash: string;
@@ -8,12 +8,12 @@ interface BlockContent {
   difficulty: number;
 }
 
-interface BlockToBeMinedParameters {
+export interface BlockToBeMinedParameters {
   lastBlock: Block;
   data: any[];
 }
 
-interface AdjustDifficultyParams {
+export interface AdjustDifficultyParams {
   lastBlock: Block;
   timestamp: number;
 }

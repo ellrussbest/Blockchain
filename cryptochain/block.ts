@@ -1,4 +1,9 @@
 import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils";
+import {
+  BlockToBeMinedParameters,
+  AdjustDifficultyParams,
+  BlockContent,
+} from "./types";
 import cryptoHash from "./crypto-hash";
 
 namespace block {
