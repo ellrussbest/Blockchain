@@ -8,10 +8,16 @@ export namespace blockchain {
     if (JSON.stringify(chain[0]) !== JSON.stringify(genesis())) return false;
 
     for (let i = 1; i < chain.length; i++) {
-      const { timestamp, previousBlockHash, hash, data, nonce, difficulty: currentDifficulty } =
-        chain[i];
+      const {
+        timestamp,
+        previousBlockHash,
+        hash,
+        data,
+        nonce,
+        difficulty: currentBlockDifficulty,
+      } = chain[i];
       const actualpreviousBlockHash = chain[i - 1].hash;
-      const lastDifficulty = chain[i - 1].difficulty;
+      const previousBlockDifficulty = chain[i - 1].difficulty;
 
       if (previousBlockHash !== actualpreviousBlockHash) return false;
 
@@ -21,12 +27,13 @@ export namespace blockchain {
         timestamp,
         previousBlockHash,
         nonce.toString(),
-        currentDifficulty.toString(),
+        currentBlockDifficulty.toString(),
         ...dataToBeHashed
       );
 
       if (hash !== validatedHash) return false;
-      if (Math.abs(lastDifficulty - currentDifficulty) > 1) return false;
+      if (Math.abs(previousBlockDifficulty - currentBlockDifficulty) > 1)
+        return false;
     }
 
     return true;
