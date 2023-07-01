@@ -7,22 +7,25 @@ namespace block {
     return new Block(GENESIS_DATA);
   };
 
-  export const mineBlock = (minedBlockParams: MinedBlockParams) => {
-    let {
-      lastBlock: { hash: previousBlockHash, difficulty },
+  export const mineBlock = (
+    blockToBeMinedParameters: BlockToBeMinedParameters
+  ) => {
+    const {
+      lastBlock: { hash: previousBlockHash },
       data,
-    } = minedBlockParams;
+    } = blockToBeMinedParameters;
     let timestamp: string;
+    let difficulty: number;
     let hash: string;
     let nonce = 0;
 
-    const dataToBeHashed = data.map((val) => JSON.stringify(val))
+    const dataToBeHashed = data.map((val) => JSON.stringify(val));
 
     do {
       nonce++;
       timestamp = Date.now().toString();
       difficulty = adjustDifficulty({
-        originalBlock: minedBlockParams.lastBlock,
+        lastBlock: blockToBeMinedParameters.lastBlock,
         timestamp: parseInt(timestamp),
       });
       hash = cryptoHash(
@@ -47,15 +50,19 @@ namespace block {
   };
 
   export const adjustDifficulty = (params: AdjustDifficultyParams): number => {
-    const { difficulty, timestamp } = params.originalBlock;
+    const {
+      difficulty: previousBlockDifficulty,
+      timestamp: previousBlockTimestamp,
+    } = params.lastBlock;
+    const { timestamp: currentTimestamp } = params;
 
-    if (difficulty < 1) return 1;
+    if (previousBlockDifficulty < 1) return 1;
 
-    const difference = params.timestamp - parseInt(timestamp);
+    const difference = currentTimestamp - parseInt(previousBlockTimestamp);
 
-    if (difference > MINE_RATE) return difficulty - 1;
+    if (difference > MINE_RATE) return previousBlockDifficulty - 1;
 
-    return difficulty + 1;
+    return previousBlockDifficulty + 1;
   };
 
   /** The block class */

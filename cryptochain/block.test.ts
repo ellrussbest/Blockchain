@@ -100,7 +100,7 @@ describe("Block", () => {
     it("raises the difficulty for a quickly mined block", () => {
       expect(
         adjustDifficulty({
-          originalBlock: block,
+          lastBlock: block,
           timestamp: parseInt(block.timestamp) + MINE_RATE - 100,
         })
       ).toEqual(block.difficulty + 1);
@@ -108,7 +108,7 @@ describe("Block", () => {
     it("lowers the difficulty for a slowly mined block", () => {
       expect(
         adjustDifficulty({
-          originalBlock: block,
+          lastBlock: block,
           timestamp: parseInt(block.timestamp) + MINE_RATE + 100,
         })
       ).toEqual(block.difficulty - 1);
@@ -118,7 +118,7 @@ describe("Block", () => {
 
       expect(
         adjustDifficulty({
-          originalBlock: block,
+          lastBlock: block,
           timestamp: Math.random(),
         })
       ).toEqual(1);

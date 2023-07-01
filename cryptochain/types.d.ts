@@ -8,13 +8,13 @@ interface BlockContent {
   difficulty: number;
 }
 
-interface MinedBlockParams {
+interface BlockToBeMinedParameters {
   lastBlock: Block;
   data: any[];
 }
 
 interface AdjustDifficultyParams {
-  originalBlock: Block;
+  lastBlock: Block;
   timestamp: number;
 }
 
