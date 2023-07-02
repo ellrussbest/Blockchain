@@ -1,10 +1,10 @@
-import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils.js";
+import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils";
 import {
   BlockToBeMinedParameters,
   AdjustDifficultyParams,
   BlockContent,
-} from "./types.js";
-import cryptoHash from "./crypto-hash.js";
+} from "./types";
+import cryptoHash from "./crypto-hash";
 
 namespace block {
   /** Functions */

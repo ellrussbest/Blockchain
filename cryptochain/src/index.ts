@@ -1,5 +1,5 @@
 import express from "express";
-import Blockchain from "./blockchain.js";
+import Blockchain from "./blockchain";
 import bodyParser from "body-parser";
 
 const app = express();

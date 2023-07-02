@@ -1,5 +1,5 @@
-import Block from "./block.js";
-import Blockchain from "./blockchain.js";
+import Block from "./block";
+import Blockchain from "./blockchain";
 
 const blockchain = new Blockchain();
 
