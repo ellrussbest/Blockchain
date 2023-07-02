@@ -1,5 +1,5 @@
-import Block, { genesis, mineBlock } from "./block";
-import cryptoHash from "./crypto-hash";
+import Block, { genesis, mineBlock } from "./block.js";
+import cryptoHash from "./crypto-hash.js";
 
 export namespace blockchain {
   /** Functions */
