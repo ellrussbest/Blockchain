@@ -1,7 +1,9 @@
 import express from "express";
 import Blockchain from "./blockchain";
 import bodyParser from "body-parser";
+import { config } from "dotenv";
 
+config();
 const app = express();
 const blockchain = new Blockchain();
 

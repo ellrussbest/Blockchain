@@ -1,7 +1,7 @@
 namespace NodeJS {
   interface ProcessEnv {
-    PASSWORD: string;
-    CONNECTION_STRING: string;
-    SECRET: string;
+    PUBLISHKEY: string;
+    SUBSCRIBEKEY: string;
+    SECRETKEY: string;
   }
 }

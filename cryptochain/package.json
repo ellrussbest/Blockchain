@@ -24,12 +24,14 @@
     "@types/body-parser": "^1.19.2",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.17",
+    "@types/pubnub": "^7.2.1",
     "@types/redis": "^4.0.11",
     "body-parser": "^1.20.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "hex-to-binary": "^1.0.1",
     "nodemon": "^2.0.22",
+    "pubnub": "^7.2.3",
     "redis": "^4.6.7",
     "rimraf": "^5.0.1"
   }
