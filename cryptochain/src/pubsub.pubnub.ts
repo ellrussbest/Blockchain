@@ -47,16 +47,14 @@ export default class PubSub {
 	// Publisher
 	publish(params: PubNub.PublishParameters) {
 		const { channel, message } = params;
-		this.pubnub.unsubscribe({ channels: [channel] });
 		this.pubnub.publish({ channel, message });
-		this.subscribeToChannels();
 	}
 
 	// Broadcasts publishers
 	broadcastChain() {
 		this.publish({
 			channel: CHANNELS.BLOCKCHAIN,
-			message: this.blockchain.chain,
+			message: JSON.stringify(this.blockchain.chain),
 		});
 	}
 }
