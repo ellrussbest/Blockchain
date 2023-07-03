@@ -1,9 +1,4 @@
 import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils";
-import {
-  BlockToBeMinedParameters,
-  AdjustDifficultyParams,
-  BlockContent,
-} from "./types";
 import cryptoHash from "./crypto-hash";
 
 namespace block {
@@ -13,7 +8,10 @@ namespace block {
   };
 
   export const mineBlock = (
-    blockToBeMinedParameters: BlockToBeMinedParameters
+    blockToBeMinedParameters: {
+      lastBlock: Block;
+      data: any[];
+    }
   ) => {
     const {
       lastBlock: { hash: previousBlockHash },
@@ -54,7 +52,10 @@ namespace block {
     });
   };
 
-  export const adjustDifficulty = (params: AdjustDifficultyParams): number => {
+  export const adjustDifficulty = (params: {
+    lastBlock: Block;
+    timestamp: number;
+  }): number => {
     const {
       difficulty: previousBlockDifficulty,
       timestamp: previousBlockTimestamp,
@@ -79,7 +80,14 @@ namespace block {
     public nonce: number;
     public difficulty: number;
 
-    constructor(blockContent: BlockContent) {
+    constructor(blockContent: {
+      timestamp: string;
+      previousBlockHash: string;
+      hash: string;
+      data: any[];
+      nonce: number;
+      difficulty: number;
+    }) {
       this.timestamp = blockContent.timestamp;
       this.previousBlockHash = blockContent.previousBlockHash;
       this.data = blockContent.data;
