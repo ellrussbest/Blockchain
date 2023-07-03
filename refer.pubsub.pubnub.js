@@ -39,11 +39,11 @@ class PubSub {
     });
   }
 
-  subscribeToChannels() {
-    this.pubnub.subscribe({
-      channels: [Object.values(CHANNELS)],
-    });
-  }
+  // subscribeToChannels() {
+  //   this.pubnub.subscribe({
+  //     channels: [Object.values(CHANNELS)],
+  //   });
+  // }
 
   listener() {
     return {
@@ -86,19 +86,19 @@ class PubSub {
     this.pubnub.publish({ message, channel });
   }
 
-  broadcastChain() {
-    this.publish({
-      channel: CHANNELS.BLOCKCHAIN,
-      message: JSON.stringify(this.blockchain.chain),
-    });
-  }
+  // broadcastChain() {
+  //   this.publish({
+  //     channel: CHANNELS.BLOCKCHAIN,
+  //     message: JSON.stringify(this.blockchain.chain),
+  //   });
+  // }
 
-  broadcastTransaction(transaction) {
-    this.publish({
-      channel: CHANNELS.TRANSACTION,
-      message: JSON.stringify(transaction),
-    });
-  }
+  // broadcastTransaction(transaction) {
+  //   this.publish({
+  //     channel: CHANNELS.TRANSACTION,
+  //     message: JSON.stringify(transaction),
+  //   });
+  // }
 }
 
 module.exports = PubSub;
