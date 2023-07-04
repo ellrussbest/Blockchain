@@ -1,8 +1,8 @@
 import express from "express";
-import Blockchain from "./blockchain";
+import { Blockchain } from "../blockchain";
 import bodyParser from "body-parser";
 import { config } from "dotenv";
-import PubSub from "./pubsub.pubnub";
+import { PubNubPubSub } from "../pubsub";
 import axios from "axios";
 
 config();
@@ -11,7 +11,7 @@ const ROOT_NODE_ADDRESS = `http://localhost:${process.env.DEFAULT_PORT}`;
 const app = express();
 const blockchain = new Blockchain();
 
-const pubSub = new PubSub({ blockchain });
+const pubSub = new PubNubPubSub({ blockchain });
 
 app.use(bodyParser.json());
 

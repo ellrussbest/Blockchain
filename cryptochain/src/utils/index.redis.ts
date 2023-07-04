@@ -1,8 +1,8 @@
 import express from "express";
-import Blockchain from "./blockchain";
+import { Blockchain } from "../blockchain";
 import bodyParser from "body-parser";
 import { config } from "dotenv";
-import PubSub, { connect } from "./pubsub.redis";
+import { RedisPubSub, connect } from "../pubsub";
 import axios from "axios";
 
 config();
@@ -13,7 +13,7 @@ const blockchain = new Blockchain();
 
 app.use(bodyParser.json());
 
-const pubSub = new PubSub({ blockchain });
+const pubSub = new RedisPubSub({ blockchain });
 
 (async () => {
 	// we first want to connect to our redis api

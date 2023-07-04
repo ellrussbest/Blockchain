@@ -1,7 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import Block, { genesis, mineBlock, adjustDifficulty } from "./block";
-import { GENESIS_DATA, MINE_RATE, hexToBinary } from "./utils";
-import cryptoHash from "./crypto-hash";
+import { GENESIS_DATA, MINE_RATE, hexToBinary, cryptoHash } from "../utils";
 
 describe("Block", () => {
   const timestamp = "2000";

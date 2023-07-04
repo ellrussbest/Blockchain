@@ -1,5 +1,5 @@
 import { createClient, RedisClientType } from "redis";
-import Blockchain from "./blockchain";
+import { Blockchain } from "../blockchain";
 
 export namespace pubsub {
 	export enum CHANNELS {
