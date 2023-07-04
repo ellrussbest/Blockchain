@@ -1,36 +1,35 @@
-import Block from "./block";
-import Blockchain from "../blockchain";
+import { Block, Blockchain } from "../blockchain";
 
 const blockchain = new Blockchain();
 
 blockchain.addBlock(["initial"]);
 
 let prevTimestamp: string,
-  nextTimestamp: string,
-  nextBlock: Block,
-  timeDiff: number,
-  average: number;
+	nextTimestamp: string,
+	nextBlock: Block,
+	timeDiff: number,
+	average: number;
 
 const times: number[] = [];
 
 for (let i = 0; i < 10000; i++) {
-  prevTimestamp = blockchain.chain[blockchain.chain.length - 1].timestamp;
+	prevTimestamp = blockchain.chain[blockchain.chain.length - 1].timestamp;
 
-  blockchain.addBlock([`block ${i}`]);
+	blockchain.addBlock([`block ${i}`]);
 
-  nextBlock = blockchain.chain[blockchain.chain.length - 1];
+	nextBlock = blockchain.chain[blockchain.chain.length - 1];
 
-  nextTimestamp = nextBlock.timestamp;
+	nextTimestamp = nextBlock.timestamp;
 
-  timeDiff = parseInt(nextTimestamp) - parseInt(prevTimestamp);
-  times.push(timeDiff);
+	timeDiff = parseInt(nextTimestamp) - parseInt(prevTimestamp);
+	times.push(timeDiff);
 
-  average =
-    times.reduce((prev, curr) => {
-      return prev + curr;
-    }, 0) / times.length;
+	average =
+		times.reduce((prev, curr) => {
+			return prev + curr;
+		}, 0) / times.length;
 
-  console.log(
-    `Time to mine block: ${timeDiff}ms. Difficulty: ${nextBlock.difficulty}. Average time: ${average}`
-  );
+	console.log(
+		`Time to mine block: ${timeDiff}ms. Difficulty: ${nextBlock.difficulty}. Average time: ${average}`,
+	);
 }
