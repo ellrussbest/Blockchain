@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@types/elliptic": "^6.4.14",
+    "@types/uuid": "^9.0.2",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "dotenv": "^16.3.1",
@@ -38,6 +39,7 @@
     "nodemon": "^2.0.22",
     "pubnub": "^7.2.3",
     "redis": "^4.6.7",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "uuid": "^9.0.0"
   }
 }
