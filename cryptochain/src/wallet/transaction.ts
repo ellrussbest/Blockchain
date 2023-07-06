@@ -1,35 +1,95 @@
 import { v1 as uuid } from "uuid";
 import Wallet from "./wallet";
 import { ec } from "elliptic";
+import { verifySignature } from "../utils";
 
-export default class Transaction {
-	public id: string;
-	public outputMap;
-	public input: {
-		timestamp: number;
-		amount: number;
-		address: string;
-		signature: ec.Signature;
+export namespace transaction {
+	export const validateTransaction = (transaction: Transaction) => {
+		const {
+			input: { address, amount, signature },
+			outputMap,
+		} = transaction;
+
+		const outputTotal = Object.values(outputMap).reduce(
+			(prev, curr) => prev + curr,
+			0,
+		);
+
+		if (amount !== outputTotal) {
+			console.error(`Invalid transaction ${address}`);
+			return false;
+		}
+
+		if (
+			!verifySignature({
+				publicKey: address,
+				data: outputMap,
+				signature,
+			})
+		) {
+			console.error(`Invalid signature from ${address}`);
+			return false;
+		}
+		return true;
 	};
 
-	constructor(params: {
-		senderWallet: Wallet;
-		recipient: string;
-		amount: number;
-	}) {
-		this.id = uuid();
-
-		this.outputMap = {
-			[params.recipient]: params.amount,
-			[params.senderWallet.publicKey]:
-				params.senderWallet.balance - params.amount,
+	export class Transaction {
+		public id: string;
+		public outputMap;
+		public input: {
+			timestamp: number;
+			amount: number;
+			address: string;
+			signature: ec.Signature;
 		};
 
-		this.input = {
-			timestamp: Date.now(),
-			amount: params.senderWallet.balance,
-			address: params.senderWallet.publicKey,
-			signature: params.senderWallet.sign(this.outputMap),
-		};
+		constructor(params: {
+			senderWallet: Wallet;
+			recipient: string;
+			amount: number;
+		}) {
+			this.id = uuid();
+
+			this.outputMap = {
+				[params.recipient]: params.amount,
+				[params.senderWallet.publicKey]:
+					params.senderWallet.balance - params.amount,
+			};
+
+			this.input = {
+				timestamp: Date.now(),
+				amount: params.senderWallet.balance,
+				address: params.senderWallet.publicKey,
+				signature: params.senderWallet.sign(this.outputMap),
+			};
+		}
+
+		update(params: {
+			senderWallet: Wallet;
+			recipient: string;
+			amount: number;
+		}) {
+			const { senderWallet, recipient, amount } = params;
+
+			if (amount > this.outputMap[senderWallet.publicKey])
+				throw new Error("Amount exceeds balance");
+
+			if (this.outputMap[recipient]) {
+				this.outputMap[recipient] = this.outputMap[recipient] + amount;
+			} else this.outputMap[recipient] = amount;
+
+			this.outputMap[senderWallet.publicKey] =
+				this.outputMap[senderWallet.publicKey] - amount;
+
+			this.input = {
+				timestamp: Date.now(),
+				amount: params.senderWallet.balance,
+				address: params.senderWallet.publicKey,
+				signature: params.senderWallet.sign(this.outputMap),
+			};
+		}
 	}
 }
+
+export default transaction.Transaction;
+export const { validateTransaction } = transaction;
