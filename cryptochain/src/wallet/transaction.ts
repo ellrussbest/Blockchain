@@ -7,10 +7,10 @@ export namespace transaction {
   export const validateTransaction = (transaction: Transaction) => {
     const {
       input: { address, amount, signature },
-      transactionMap,
+      outputMap,
     } = transaction;
 
-    const outputTotal = Object.values(transactionMap).reduce(
+    const outputTotal = Object.values(outputMap).reduce(
       (prev, curr) => prev + curr,
       0
     );
@@ -23,7 +23,7 @@ export namespace transaction {
     if (
       !verifySignature({
         publicKey: address,
-        data: transactionMap,
+        data: outputMap,
         signature,
       })
     ) {
@@ -35,7 +35,7 @@ export namespace transaction {
 
   export class Transaction {
     public id: string;
-    public transactionMap;
+    public outputMap;
     public input: {
       timestamp: number;
       amount: number;
@@ -52,7 +52,7 @@ export namespace transaction {
       this.id = uuid();
 
       // this should map the recipients amount and reciever's updated balance
-      this.transactionMap = {
+      this.outputMap = {
         [recipient]: amount,
         [senderWallet.publicKey]: senderWallet.balance - amount,
       };
@@ -61,7 +61,7 @@ export namespace transaction {
         timestamp: Date.now(),
         amount: senderWallet.balance,
         address: senderWallet.publicKey,
-        signature: senderWallet.sign(this.transactionMap),
+        signature: senderWallet.sign(this.outputMap),
       };
     }
 
@@ -72,24 +72,23 @@ export namespace transaction {
     }) {
       const { senderWallet, recipient, amount } = params;
 
-      if (amount > this.transactionMap[senderWallet.publicKey])
+      if (amount > this.outputMap[senderWallet.publicKey])
         throw new Error("Amount exceeds balance");
 
       // if recipient has ever received any transaction, then we should just update it
       // else we should create a new transaction
-      if (this.transactionMap[recipient]) {
-        this.transactionMap[recipient] =
-          this.transactionMap[recipient] + amount;
-      } else this.transactionMap[recipient] = amount;
+      if (this.outputMap[recipient]) {
+        this.outputMap[recipient] = this.outputMap[recipient] + amount;
+      } else this.outputMap[recipient] = amount;
 
-      this.transactionMap[senderWallet.publicKey] =
-        this.transactionMap[senderWallet.publicKey] - amount;
+      this.outputMap[senderWallet.publicKey] =
+        this.outputMap[senderWallet.publicKey] - amount;
 
       this.input = {
         timestamp: Date.now(),
         amount: params.senderWallet.balance,
         address: params.senderWallet.publicKey,
-        signature: params.senderWallet.sign(this.transactionMap),
+        signature: params.senderWallet.sign(this.outputMap),
       };
     }
   }

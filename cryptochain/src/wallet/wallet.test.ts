@@ -73,7 +73,7 @@ describe("Wallet", () => {
 			});
 
 			it("outputs the amount of the recipient", () => {
-				expect(transaction.transactionMap[recipient]).toEqual(amount);
+				expect(transaction.outputMap[recipient]).toEqual(amount);
 			});
 		});
 	});

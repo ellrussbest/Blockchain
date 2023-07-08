@@ -3,12 +3,15 @@ import { Transaction } from ".";
 import { Wallet } from ".";
 
 describe("TransactionPool", () => {
-  let transactionPool: TransactionPool, transaction: Transaction;
+  let transactionPool: TransactionPool,
+    transaction: Transaction,
+    senderWallet: Wallet;
 
   beforeEach(() => {
     transactionPool = new TransactionPool();
+    senderWallet = new Wallet();
     transaction = new Transaction({
-      senderWallet: new Wallet(),
+      senderWallet,
       recipient: "fake-recipient",
       amount: 50,
     });
@@ -24,10 +27,16 @@ describe("TransactionPool", () => {
       expect(transactionPool.transactionMap[transaction.id]).toBe(transaction);
     });
   });
-});
 
-// describe("hello world", () => {
-//   it("consoles hello world", () => {
-//     console.log("hello world");
-//   });
-// });
+  describe("existingTransaction()", () => {
+    it("returns an existing transaction given an input address", () => {
+      transactionPool.setTransaction(transaction);
+
+      expect(
+        transactionPool.existingTransaction({
+          inputAddress: senderWallet.publicKey,
+        })
+      ).toBe(transaction);
+    });
+  });
+});

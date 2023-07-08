@@ -25,17 +25,17 @@ describe("Transaction", () => {
     expect(transaction).toHaveProperty("id");
   });
 
-  describe("transactionMap", () => {
-    it("has `transactionMap`", () => {
-      expect(transaction).toHaveProperty("transactionMap");
+  describe("outputMap", () => {
+    it("has `outputMap`", () => {
+      expect(transaction).toHaveProperty("outputMap");
     });
 
     it("outputs the amount to the recipient", () => {
-      expect(transaction.transactionMap[recipient]).toEqual(amount);
+      expect(transaction.outputMap[recipient]).toEqual(amount);
     });
 
     it("outputs the remainging for the `senderWallet`", () => {
-      expect(transaction.transactionMap[senderWallet.publicKey]).toEqual(
+      expect(transaction.outputMap[senderWallet.publicKey]).toEqual(
         senderWallet.balance - amount
       );
     });
@@ -62,7 +62,7 @@ describe("Transaction", () => {
       expect(
         verifySignature({
           publicKey: senderWallet.publicKey,
-          data: transaction.transactionMap,
+          data: transaction.outputMap,
           signature: transaction.input.signature,
         })
       ).toBe(true);
@@ -84,9 +84,9 @@ describe("Transaction", () => {
     });
 
     describe("when the transaction is invalid", () => {
-      describe("and a transaction transactionMap value is invalid", () => {
+      describe("and a transaction outputMap value is invalid", () => {
         it("returns false and logs an error", () => {
-          transaction.transactionMap[senderWallet.publicKey] = 999999;
+          transaction.outputMap[senderWallet.publicKey] = 999999;
           expect(validateTransaction(transaction)).toBe(false);
           expect(errorMock).toHaveBeenCalled();
         });
@@ -123,8 +123,7 @@ describe("Transaction", () => {
     describe("and the amount is valid", () => {
       beforeEach(() => {
         originalSignature = transaction.input.signature;
-        originalSenderOutput =
-          transaction.transactionMap[senderWallet.publicKey];
+        originalSenderOutput = transaction.outputMap[senderWallet.publicKey];
         nextRecipient = "foo-recipient";
         nextAmount = 50;
 
@@ -135,18 +134,18 @@ describe("Transaction", () => {
         });
       });
       it("outputs the amount to the next recipient", () => {
-        expect(transaction.transactionMap[nextRecipient]).toEqual(nextAmount);
+        expect(transaction.outputMap[nextRecipient]).toEqual(nextAmount);
       });
 
       it("subtracts the amount from original sender output amount", () => {
-        expect(transaction.transactionMap[senderWallet.publicKey]).toEqual(
+        expect(transaction.outputMap[senderWallet.publicKey]).toEqual(
           originalSenderOutput - nextAmount
         );
       });
 
       it("maintains a total output that matches that input amount", () => {
         expect(
-          Object.values(transaction.transactionMap).reduce(
+          Object.values(transaction.outputMap).reduce(
             (prev, curr) => prev + curr,
             0
           )
@@ -170,13 +169,13 @@ describe("Transaction", () => {
         });
 
         it("adds to the recipient amount", () => {
-          expect(transaction.transactionMap[nextRecipient]).toEqual(
+          expect(transaction.outputMap[nextRecipient]).toEqual(
             nextAmount + addedAmount
           );
         });
 
         it("subtracts the amount from original sender output amount", () => {
-          expect(transaction.transactionMap[senderWallet.publicKey]).toEqual(
+          expect(transaction.outputMap[senderWallet.publicKey]).toEqual(
             originalSenderOutput - nextAmount - addedAmount
           );
         });

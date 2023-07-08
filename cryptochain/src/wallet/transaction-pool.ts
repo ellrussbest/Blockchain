@@ -12,4 +12,18 @@ export default class TransctionPool {
   setTransaction(transaction: Transaction) {
     this.transactionMap[transaction.id] = transaction;
   }
+
+  setTransactionMap(transactionMap: { [x: string]: Transaction }) {
+    this.transactionMap = transactionMap;
+  }
+
+  existingTransaction(params: { inputAddress: string }) {
+    const transactions = Object.values(this.transactionMap);
+
+    const transaction = transactions.find(
+      (transaction) => transaction.input.address === params.inputAddress
+    );
+
+    return transaction;
+  }
 }
