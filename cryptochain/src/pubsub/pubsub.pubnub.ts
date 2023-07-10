@@ -1,17 +1,27 @@
 import PubNub from "pubnub";
 import { Blockchain } from "../blockchain";
+import { TransactionPool, Transaction, Wallet } from "../wallet";
 
 enum CHANNELS {
 	TEST = "TEST",
 	BLOCKCHAIN = "BLOCKCHAIN",
+	TRANSACTION = "TRANSACTION",
 }
 
 export default class PubSub {
 	public pubnub: PubNub;
 	public blockchain: Blockchain;
+	public transactionPool: TransactionPool;
+	public wallet: Wallet;
 
-	constructor(params: { blockchain: Blockchain }) {
+	constructor(params: {
+		blockchain: Blockchain;
+		transactionPool: TransactionPool;
+		wallet: Wallet;
+	}) {
 		this.blockchain = params.blockchain;
+		this.transactionPool = params.transactionPool;
+		this.wallet = params.wallet;
 		this.pubnub = new PubNub({
 			publishKey: process.env.PUBLISHKEY,
 			subscribeKey: process.env.SUBSCRIBEKEY,
@@ -32,6 +42,19 @@ export default class PubSub {
 						const parsedMessage = JSON.parse(messageObject.message);
 						this.blockchain.replaceChain(parsedMessage);
 						break;
+					case CHANNELS.TRANSACTION:
+						if (
+							!this.transactionPool.existingTransaction({
+								inputAddress: this.wallet.publicKey,
+							})
+						) {
+							this.transactionPool.setTransaction(
+								JSON.parse(messageObject.message),
+							);
+						}
+						break;
+					default:
+						return;
 				}
 			},
 		};
@@ -58,6 +81,14 @@ export default class PubSub {
 		this.publish({
 			channel: CHANNELS.BLOCKCHAIN,
 			message: JSON.stringify(this.blockchain.chain),
+		});
+	}
+
+	// broadcasts transactions
+	broadcastTransaction(transaction: Transaction) {
+		this.publish({
+			channel: CHANNELS.TRANSACTION,
+			message: JSON.stringify(transaction),
 		});
 	}
 }

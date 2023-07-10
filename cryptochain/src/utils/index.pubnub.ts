@@ -4,14 +4,17 @@ import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { PubNubPubSub } from "../pubsub";
 import axios from "axios";
+import { TransactionPool, Wallet, Transaction } from "../wallet";
 
 config();
 const ROOT_NODE_ADDRESS = `http://localhost:${process.env.DEFAULT_PORT}`;
 
 const app = express();
 const blockchain = new Blockchain();
+const transactionPool = new TransactionPool();
+const wallet = new Wallet();
 
-const pubSub = new PubNubPubSub({ blockchain });
+const pubSub = new PubNubPubSub({ blockchain, transactionPool, wallet });
 
 app.use(bodyParser.json());
 
@@ -30,6 +33,44 @@ app.post("/api/mine", (req, res, next) => {
 	res.redirect("/api/blocks");
 });
 
+app.post("/api/transact", (req, res, next) => {
+	const { amount, recipient } = req.body;
+
+	let transaction: Transaction | undefined =
+		transactionPool.existingTransaction({
+			inputAddress: wallet.publicKey,
+		});
+
+	try {
+		if (!!transaction) {
+			transaction.update({
+				senderWallet: wallet,
+				recipient,
+				amount,
+			});
+		} else {
+			transaction = wallet.createTransaction({
+				recipient,
+				amount,
+			});
+		}
+	} catch (error: any) {
+		return res.status(400).json({
+			type: "error",
+			message: error.message,
+		});
+	}
+
+	transactionPool.setTransaction(transaction);
+	pubSub.broadcastTransaction(transaction);
+
+	res.json({ transaction });
+});
+
+app.get("/api/transaction-pool-map", (req, res, next) => {
+	res.json(transactionPool.transactionMap);
+});
+
 const syncChains = async () => {
 	try {
 		const chainRequest = await axios.get(`${ROOT_NODE_ADDRESS}/api/blocks`);
@@ -41,6 +82,23 @@ const syncChains = async () => {
 			blockchain.replaceChain(chain);
 		} else {
 			throw new Error("Error while fetching the Blockchain");
+		}
+	} catch (error) {
+		console.log(error);
+	}
+
+	try {
+		const poolRequest = await axios.get(
+			`${ROOT_NODE_ADDRESS}/api/transaction-pool-map`,
+		);
+
+		if (poolRequest.status === 200) {
+			const pool = await poolRequest.data;
+
+			console.log("replace pool on sync with", pool);
+			transactionPool.setTransactionMap(pool);
+		} else {
+			throw new Error("Error while fetching the transaction pool map");
 		}
 	} catch (error) {
 		console.log(error);
