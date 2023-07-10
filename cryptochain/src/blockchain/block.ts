@@ -74,7 +74,7 @@ namespace block {
 		public timestamp: string;
 		public previousBlockHash: string;
 		public hash: string;
-		public data: string[];
+		public data: any[];
 		public nonce: number;
 		public difficulty: number;
 

@@ -1,7 +1,7 @@
 import Block, { genesis, mineBlock } from "./block";
 import { cryptoHash } from "../utils";
 
-export namespace blockchain {
+namespace blockchain {
 	/** Functions */
 	export const isValidChain = (chain: Block[]): boolean => {
 		// when the chain does not start with the genesis block return false

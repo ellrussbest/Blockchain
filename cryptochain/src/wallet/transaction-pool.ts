@@ -1,29 +1,54 @@
-import { Transaction } from ".";
+import { Transaction, validateTransaction, transaction } from ".";
+import { Block } from "../blockchain";
 
 export default class TransctionPool {
-  public transactionMap: {
-    [x: string]: Transaction;
-  };
+	public transactionMap: {
+		[x: string]: Transaction;
+	};
 
-  constructor() {
-    this.transactionMap = {};
-  }
+	constructor() {
+		this.transactionMap = {};
+	}
 
-  setTransaction(transaction: Transaction) {
-    this.transactionMap[transaction.id] = transaction;
-  }
+	clear() {
+		this.transactionMap = {};
+	}
 
-  setTransactionMap(transactionMap: { [x: string]: Transaction }) {
-    this.transactionMap = transactionMap;
-  }
+	setTransaction(transaction: Transaction) {
+		this.transactionMap[transaction.id] = transaction;
+	}
 
-  existingTransaction(params: { inputAddress: string }) {
-    const transactions = Object.values(this.transactionMap);
+	setTransactionMap(transactionMap: { [x: string]: Transaction }) {
+		this.transactionMap = transactionMap;
+	}
 
-    const transaction = transactions.find(
-      (transaction) => transaction.input.address === params.inputAddress
-    );
+	existingTransaction(params: { inputAddress: string }) {
+		const transactions = Object.values(this.transactionMap);
 
-    return transaction;
-  }
+		const transaction = transactions.find(
+			(transaction) => transaction.input.address === params.inputAddress,
+		);
+
+		return transaction;
+	}
+
+	validTransactions() {
+		let transactions = Object.values(this.transactionMap);
+
+		return transactions.filter((transaction) =>
+			validateTransaction(transaction),
+		);
+	}
+
+	clearBlockchainTransactions(params: { chain: Block[] }) {
+		for (let i = 1; i < params.chain.length; i++) {
+			const block = params.chain[i];
+
+			for (let transaction of block.data) {
+				if (this.transactionMap[transaction.id]) {
+					delete this.transactionMap[transaction.id];
+				}
+			}
+		}
+	}
 }

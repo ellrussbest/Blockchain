@@ -2,7 +2,7 @@ import { createClient, RedisClientType } from "redis";
 import { Blockchain } from "../blockchain";
 import { TransactionPool, Transaction } from "../wallet";
 
-export namespace pubsub {
+namespace pubsub {
   export enum CHANNELS {
     TEST = "TEST",
     BLOCKCHAIN = "BLOCKCHAIN",
