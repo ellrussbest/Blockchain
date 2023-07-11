@@ -3,7 +3,7 @@ import { Block } from "../blockchain";
 
 export default class TransctionPool {
 	public transactionMap: {
-		[x: string]: Transaction;
+		[x: string]: Transaction | transaction.BlockRewardTx;
 	};
 
 	constructor() {
@@ -14,11 +14,13 @@ export default class TransctionPool {
 		this.transactionMap = {};
 	}
 
-	setTransaction(transaction: Transaction) {
+	setTransaction(transaction: Transaction | transaction.BlockRewardTx) {
 		this.transactionMap[transaction.id] = transaction;
 	}
 
-	setTransactionMap(transactionMap: { [x: string]: Transaction }) {
+	setTransactionMap(transactionMap: {
+		[x: string]: Transaction | transaction.BlockRewardTx;
+	}) {
 		this.transactionMap = transactionMap;
 	}
 
@@ -35,8 +37,10 @@ export default class TransctionPool {
 	validTransactions() {
 		let transactions = Object.values(this.transactionMap);
 
-		return transactions.filter((transaction) =>
-			validateTransaction(transaction),
+		return transactions.filter(
+			(transaction) =>
+				transaction instanceof Transaction &&
+				validateTransaction(transaction),
 		);
 	}
 
@@ -52,3 +56,4 @@ export default class TransctionPool {
 		}
 	}
 }
+

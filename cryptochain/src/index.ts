@@ -4,7 +4,13 @@ import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { RedisPubSub, connect } from "./pubsub";
 import axios from "axios";
-import { TransactionPool, Wallet, Transaction } from "./wallet";
+import { TransactionMiner } from "./transaction-miner";
+import {
+	TransactionPool,
+	Wallet,
+	Transaction,
+	transaction as tx,
+} from "./wallet";
 
 config();
 const ROOT_NODE_ADDRESS = `http://localhost:${process.env.DEFAULT_PORT}`;
@@ -18,6 +24,13 @@ const wallet = new Wallet();
 app.use(bodyParser.json());
 
 const pubSub = new RedisPubSub({ blockchain, transactionPool });
+
+const transactionMiner = new TransactionMiner({
+	blockchain,
+	transactionPool,
+	pubSub,
+	wallet,
+});
 
 (async () => {
 	// we first want to connect to our redis api
@@ -40,13 +53,13 @@ const pubSub = new RedisPubSub({ blockchain, transactionPool });
 		app.post("/api/transact", async (req, res, next) => {
 			const { amount, recipient } = req.body;
 
-			let transaction: Transaction | undefined =
+			let transaction: Transaction | tx.BlockRewardTx | undefined =
 				transactionPool.existingTransaction({
 					inputAddress: wallet.publicKey,
 				});
 
 			try {
-				if (!!transaction) {
+				if (!!transaction && transaction instanceof Transaction) {
 					transaction.update({
 						senderWallet: wallet,
 						recipient,
@@ -76,6 +89,11 @@ const pubSub = new RedisPubSub({ blockchain, transactionPool });
 
 		app.get("/api/transaction-pool-map", (req, res, next) => {
 			res.json(transactionPool.transactionMap);
+		});
+
+		app.get("/api/mine-transactions", (req, res, next) => {
+			transactionMiner.mineTransaction();
+			res.redirect("/api/blocks");
 		});
 
 		const syncWithRootState = async () => {

@@ -1,6 +1,6 @@
 import PubNub from "pubnub";
 import { Blockchain } from "../blockchain";
-import { TransactionPool, Transaction, Wallet } from "../wallet";
+import { TransactionPool, Transaction, Wallet, transaction } from "../wallet";
 
 enum CHANNELS {
 	TEST = "TEST",
@@ -40,7 +40,11 @@ export default class PubSub {
 				switch (messageObject.channel) {
 					case CHANNELS.BLOCKCHAIN:
 						const parsedMessage = JSON.parse(messageObject.message);
-						this.blockchain.replaceChain(parsedMessage);
+						this.blockchain.replaceChain(parsedMessage, () => {
+							this.transactionPool.clearBlockchainTransactions({
+								chain: parsedMessage,
+							});
+						});
 						break;
 					case CHANNELS.TRANSACTION:
 						if (
@@ -85,7 +89,7 @@ export default class PubSub {
 	}
 
 	// broadcasts transactions
-	broadcastTransaction(transaction: Transaction) {
+	broadcastTransaction(transaction: Transaction | transaction.BlockRewardTx) {
 		this.publish({
 			channel: CHANNELS.TRANSACTION,
 			message: JSON.stringify(transaction),

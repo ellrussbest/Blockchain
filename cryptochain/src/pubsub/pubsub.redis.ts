@@ -1,101 +1,123 @@
 import { createClient, RedisClientType } from "redis";
 import { Blockchain } from "../blockchain";
-import { TransactionPool, Transaction } from "../wallet";
+import { TransactionPool, Transaction, transaction } from "../wallet";
 
 namespace pubsub {
-  export enum CHANNELS {
-    TEST = "TEST",
-    BLOCKCHAIN = "BLOCKCHAIN",
-    TRANSACTION = "TRANSACTION",
-  }
+	export enum CHANNELS {
+		TEST = "TEST",
+		BLOCKCHAIN = "BLOCKCHAIN",
+		TRANSACTION = "TRANSACTION",
+	}
 
-  /** Functions to Connect the clients */
-  export const connect = async (pubsub: PubSub): Promise<boolean> => {
-    try {
-      await pubsub.publisher.connect();
-    } catch (error) {
-      return false;
-    }
+	/** Functions to Connect the clients */
+	export const connect = async (pubsub: PubSub): Promise<boolean> => {
+		try {
+			await pubsub.publisher.connect();
+		} catch (error) {
+			return false;
+		}
 
-    try {
-      await pubsub.subscriber.connect();
-      return true;
-    } catch (error) {
-      console.log("Connection unsuccessful");
-      return false;
-    }
-  };
+		try {
+			await pubsub.subscriber.connect();
+			return true;
+		} catch (error) {
+			console.log("Connection unsuccessful");
+			return false;
+		}
+	};
 
-  export class PubSub {
-    public publisher: RedisClientType;
-    public subscriber: RedisClientType;
-    public blockchain: Blockchain;
-    public transactionPool: TransactionPool;
+	export class PubSub {
+		public publisher: RedisClientType;
+		public subscriber: RedisClientType;
+		public blockchain: Blockchain;
+		public transactionPool: TransactionPool;
 
-    constructor(params: {
-      blockchain: Blockchain;
-      transactionPool: TransactionPool;
-    }) {
-      this.blockchain = params.blockchain;
-      this.transactionPool = params.transactionPool;
-      this.publisher = createClient();
-      this.subscriber = createClient();
+		constructor(params: {
+			blockchain: Blockchain;
+			transactionPool: TransactionPool;
+		}) {
+			this.blockchain = params.blockchain;
+			this.transactionPool = params.transactionPool;
+			this.publisher = createClient();
+			this.subscriber = createClient();
 
-      this.subscribeToChannels();
-    }
+			this.subscribeToChannels();
+		}
 
-    subscribeToChannels() {
-      Object.values(CHANNELS).forEach(async (channel) => {
-        switch (channel) {
-          case CHANNELS.TEST:
-            try {
-              await this.subscriber.subscribe(channel, (message) => {
-                console.log(message);
-              });
-            } catch (error) {}
+		subscribeToChannels() {
+			Object.values(CHANNELS).forEach(async (channel) => {
+				switch (channel) {
+					case CHANNELS.TEST:
+						try {
+							await this.subscriber.subscribe(
+								channel,
+								(message) => {
+									console.log(message);
+								},
+							);
+						} catch (error) {}
 
-            break;
-          case CHANNELS.BLOCKCHAIN:
-            try {
-              await this.subscriber.subscribe(channel, (message) => {
-                const parsedMessage = JSON.parse(message);
-                this.blockchain.replaceChain(parsedMessage);
-              });
-            } catch (error) {}
-            break;
-          case CHANNELS.TRANSACTION:
-            try {
-              await this.subscriber.subscribe(channel, (message) => {
-                this.transactionPool.setTransaction(JSON.parse(message));
-              });
-            } catch (error) {}
-            break;
-          default:
-            return;
-        }
-      });
-    }
+						break;
+					case CHANNELS.BLOCKCHAIN:
+						try {
+							await this.subscriber.subscribe(
+								channel,
+								(message) => {
+									const parsedMessage = JSON.parse(message);
+									this.blockchain.replaceChain(
+										parsedMessage,
+										() => {
+											this.transactionPool.clearBlockchainTransactions(
+												{
+													chain: parsedMessage,
+												},
+											);
+										},
+									);
+								},
+							);
+						} catch (error) {}
+						break;
+					case CHANNELS.TRANSACTION:
+						try {
+							await this.subscriber.subscribe(
+								channel,
+								(message) => {
+									this.transactionPool.setTransaction(
+										JSON.parse(message),
+									);
+								},
+							);
+						} catch (error) {}
+						break;
+					default:
+						return;
+				}
+			});
+		}
 
-    async publish(params: { channel: string; message: string }) {
-      await this.subscriber.unsubscribe(params.channel);
-      await this.publisher.publish(params.channel, params.message);
-      this.subscribeToChannels();
-    }
+		async publish(params: { channel: string; message: string }) {
+			await this.subscriber.unsubscribe(params.channel);
+			await this.publisher.publish(params.channel, params.message);
+			this.subscribeToChannels();
+		}
 
-    async broadcastChain() {
-      await this.publish({
-        channel: CHANNELS.BLOCKCHAIN,
-        message: JSON.stringify(this.blockchain.chain),
-      });
-    }
+		async broadcastChain() {
+			await this.publish({
+				channel: CHANNELS.BLOCKCHAIN,
+				message: JSON.stringify(this.blockchain.chain),
+			});
+		}
 
-    async broadcastTransaction(transaction: Transaction) {
-      await this.publish({
-        channel: CHANNELS.TRANSACTION,
-        message: JSON.stringify(transaction),
-      });
-    }
-  }
+		async broadcastTransaction(
+			transaction: Transaction | transaction.BlockRewardTx,
+		) {
+			await this.publish({
+				channel: CHANNELS.TRANSACTION,
+				message: JSON.stringify(transaction),
+			});
+		}
+	}
 }
 
 export default pubsub.PubSub;

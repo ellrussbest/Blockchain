@@ -1,18 +1,18 @@
 import { Blockchain } from "../blockchain";
-import { RedisPubSub as PubSub } from "../pubsub";
-import { TransactionPool, Wallet } from "../wallet";
+import { RedisPubSub as PubSub, PubNubPubSub as PubNub } from "../pubsub";
+import { TransactionPool, Wallet, transaction } from "../wallet";
 
 export default class TransactionMiner {
 	public blockchain: Blockchain;
 	public transactionPool: TransactionPool;
 	public wallet: Wallet;
-	public pubSub: PubSub;
+	public pubSub: PubSub | PubNub;
 
 	constructor(params: {
 		blockchain: Blockchain;
 		transactionPool: TransactionPool;
 		wallet: Wallet;
-		pubSub: PubSub;
+		pubSub: PubSub | PubNub;
 	}) {
 		const { blockchain, transactionPool, wallet, pubSub } = params;
 
@@ -23,9 +23,22 @@ export default class TransactionMiner {
 	}
 	mineTransaction() {
 		// get the transaction pool's valid transactions
+		const validTransactions = this.transactionPool.validTransactions();
+
 		// generate the miner's reward
+		validTransactions.push(
+			new transaction.BlockRewardTx({
+				minerWallet: this.wallet,
+			}),
+		);
+
 		// add a block consisting of these transactions to the blockchain
+		this.blockchain.addBlock(validTransactions);
+
 		// broadcast the updated blockchain
+		this.pubSub.broadcastChain();
+
 		// clear the pool
+		this.transactionPool.clear();
 	}
 }

@@ -60,7 +60,7 @@ namespace blockchain {
 			return this;
 		}
 
-		replaceChain(chain: Block[]): this {
+		replaceChain(chain: Block[], onSuccess?: () => void): this {
 			// if the new chain's length is less or equal to the length of the existing blockchain
 			// the incoming chain must be longer than the present chain
 			if (chain.length <= this.chain.length) {
@@ -73,7 +73,9 @@ namespace blockchain {
 				console.error("The incoming chain must be valid");
 				return this;
 			}
-			console.log("The original chain was", this.chain);
+
+			if (!!onSuccess) onSuccess();
+
 			console.log("Replacing chain with", chain);
 			this.chain = chain;
 			return this;

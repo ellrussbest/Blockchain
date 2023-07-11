@@ -3,8 +3,14 @@ import { Blockchain } from "../blockchain";
 import bodyParser from "body-parser";
 import { config } from "dotenv";
 import { PubNubPubSub } from "../pubsub";
+import { TransactionMiner } from "../transaction-miner";
 import axios from "axios";
-import { TransactionPool, Wallet, Transaction } from "../wallet";
+import {
+	TransactionPool,
+	Wallet,
+	Transaction,
+	transaction as tx,
+} from "../wallet";
 
 config();
 const ROOT_NODE_ADDRESS = `http://localhost:${process.env.DEFAULT_PORT}`;
@@ -15,6 +21,13 @@ const transactionPool = new TransactionPool();
 const wallet = new Wallet();
 
 const pubSub = new PubNubPubSub({ blockchain, transactionPool, wallet });
+
+const transactionMiner = new TransactionMiner({
+	blockchain,
+	transactionPool,
+	pubSub,
+	wallet,
+});
 
 app.use(bodyParser.json());
 
@@ -36,13 +49,13 @@ app.post("/api/mine", (req, res, next) => {
 app.post("/api/transact", (req, res, next) => {
 	const { amount, recipient } = req.body;
 
-	let transaction: Transaction | undefined =
+	let transaction: Transaction | tx.BlockRewardTx | undefined =
 		transactionPool.existingTransaction({
 			inputAddress: wallet.publicKey,
 		});
 
 	try {
-		if (!!transaction) {
+		if (!!transaction && transaction instanceof Transaction) {
 			transaction.update({
 				senderWallet: wallet,
 				recipient,
@@ -69,6 +82,11 @@ app.post("/api/transact", (req, res, next) => {
 
 app.get("/api/transaction-pool-map", (req, res, next) => {
 	res.json(transactionPool.transactionMap);
+});
+
+app.get("/api/mine-transactions", (req, res, next) => {
+	transactionMiner.mineTransaction();
+	res.redirect("/api/blocks");
 });
 
 const syncChains = async () => {
