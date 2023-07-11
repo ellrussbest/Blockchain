@@ -1,3 +1,4 @@
+import { Block } from "../blockchain";
 import { STARTING_BALANCE, ec, cryptoHash } from "../utils";
 import Transaction from "./transaction";
 
@@ -17,7 +18,18 @@ export default class Wallet {
 		return this.keyPair.sign(cryptoHash(JSON.stringify(data)));
 	}
 
-	createTransaction(params: { recipient: string; amount: number }) {
+	createTransaction(params: {
+		recipient: string;
+		amount: number;
+		chain?: Block[];
+	}) {
+		if (!!params.chain) {
+			this.balance = Wallet.calculateBalance({
+				chain: params.chain,
+				address: this.publicKey,
+			});
+		}
+
 		if (params.amount > this.balance) {
 			throw new Error("Amount exceeds balance");
 		}
@@ -27,5 +39,32 @@ export default class Wallet {
 			recipient: params.recipient,
 			amount: params.amount,
 		});
+	}
+
+	static calculateBalance(params: { chain: Block[]; address: string }) {
+		let hasConductedTransaction = false;
+
+		const { chain, address } = params;
+		let outputsTotal = 0;
+
+		for (let i = chain.length - 1; i > 0; i--) {
+			const block = chain[i];
+
+			for (let transaction of block.data) {
+				if (transaction.input.address === address) {
+					hasConductedTransaction = true;
+				}
+
+				const addressOutput = transaction.outputMap[address];
+				if (addressOutput)
+					outputsTotal += transaction.outputMap[address];
+			}
+
+			if (hasConductedTransaction) break;
+		}
+
+		return hasConductedTransaction
+			? outputsTotal
+			: STARTING_BALANCE + outputsTotal;
 	}
 }

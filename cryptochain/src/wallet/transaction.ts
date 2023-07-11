@@ -92,9 +92,9 @@ export namespace transaction {
 
 			this.input = {
 				timestamp: Date.now(),
-				amount: params.senderWallet.balance,
-				address: params.senderWallet.publicKey,
-				signature: params.senderWallet.sign(this.outputMap),
+				amount: senderWallet.balance,
+				address: senderWallet.publicKey,
+				signature: senderWallet.sign(this.outputMap),
 			};
 		}
 	}

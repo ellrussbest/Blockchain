@@ -65,6 +65,7 @@ app.post("/api/transact", (req, res, next) => {
 			transaction = wallet.createTransaction({
 				recipient,
 				amount,
+				chain: blockchain.chain,
 			});
 		}
 	} catch (error: any) {
