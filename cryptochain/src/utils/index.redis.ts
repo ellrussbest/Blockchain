@@ -97,6 +97,18 @@ const transactionMiner = new TransactionMiner({
 			res.redirect("/api/blocks");
 		});
 
+		app.get("/api/wallet-info", (req, res, next) => {
+			const address = wallet.publicKey;
+
+			res.json({
+				address,
+				balance: Wallet.calculateBalance({
+					chain: blockchain.chain,
+					address,
+				}),
+			});
+		});
+
 		const syncWithRootState = async () => {
 			try {
 				const chainRequest = await axios.get(
