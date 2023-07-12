@@ -65,12 +65,13 @@ const transactionMiner = new TransactionMiner({
 						recipient,
 						amount,
 					});
-				} else {
+				} else if (transaction === undefined) {
 					transaction = wallet.createTransaction({
 						recipient,
 						amount,
 						chain: blockchain.chain,
 					});
+				} else {
 				}
 			} catch (error: any) {
 				res.status(400).json({
