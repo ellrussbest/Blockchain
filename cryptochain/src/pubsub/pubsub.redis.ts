@@ -66,6 +66,7 @@ namespace pubsub {
 									const parsedMessage = JSON.parse(message);
 									this.blockchain.replaceChain(
 										parsedMessage,
+										true,
 										() => {
 											this.transactionPool.clearBlockchainTransactions(
 												{
