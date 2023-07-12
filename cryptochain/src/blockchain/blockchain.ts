@@ -1,5 +1,6 @@
 import Block, { genesis, mineBlock } from "./block";
-import { cryptoHash } from "../utils";
+import { MINING_REWARD, REWARD_INPUT, cryptoHash } from "../utils";
+import { validateTransaction } from "../wallet";
 
 namespace blockchain {
 	/** Functions */
@@ -79,6 +80,42 @@ namespace blockchain {
 			console.log("Replacing chain with", chain);
 			this.chain = chain;
 			return this;
+		}
+
+		validTransactionData(params: { chain: Block[] }) {
+			const { chain } = params;
+
+			for (let i = 1; i < chain.length; i++) {
+				const block = chain[i];
+				let rewardTransactionCount = 0;
+
+				for (let transaction of block.data) {
+					// check if we have more than one Reward in a block
+					if (transaction.input.address === REWARD_INPUT.address) {
+						rewardTransactionCount += 1;
+
+						if (rewardTransactionCount > 1) {
+							console.error("Miner rewards exceed limit");
+							return false;
+						}
+
+						if (
+							Object.values(transaction.outputMap)[0] !==
+							MINING_REWARD
+						) {
+							console.error("Miner reward amount is invalid");
+							return false;
+						}
+					} else {
+						if (!validateTransaction(transaction)) {
+							console.error("Invalid transaction");
+							return false;
+						}
+					}
+				}
+			}
+
+			return true;
 		}
 	}
 }
