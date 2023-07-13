@@ -10,18 +10,12 @@ function App() {
 	);
 	const { updateWalletInfo, updateBlocks } = useActions();
 
-	console.log(info);
-	console.log(blocks);
-
 	useEffect(() => {
 		const fetchWalletInfo = async () => {
 			try {
-				const data = (await sendRequest(
+				const data = await sendRequest(
 					"http://localhost:5000/api/wallet-info",
-				)) as {
-					balance: number;
-					address: string;
-				};
+				);
 
 				updateWalletInfo(data);
 			} catch (error) {}
@@ -37,16 +31,7 @@ function App() {
 					"http://localhost:5000/api/blocks",
 				);
 
-				const chain = data.chain as {
-					timestamp: string;
-					previousBlockHash: string;
-					hash: string;
-					data: any[];
-					nonce: number;
-					difficulty: number;
-				}[];
-
-				updateBlocks(chain);
+				updateBlocks(data.chain);
 			} catch (error) {}
 		};
 
