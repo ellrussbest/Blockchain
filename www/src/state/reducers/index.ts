@@ -1,10 +1,8 @@
 import { combineReducers } from "redux";
-
-// import each reducer here
+import blockchainReducer from "./blockchainReducer";
 
 const reducers = combineReducers({
-	// add each reducer here e.g.
-	// fetch: fetchReducer
+	blockchain: blockchainReducer,
 });
 
 export default reducers;

@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { RedisPubSub, connect } from "./pubsub";
 import axios from "axios";
 import { TransactionMiner } from "./transaction-miner";
+import cors from "cors";
 import {
 	TransactionPool,
 	Wallet,
@@ -22,6 +23,7 @@ const transactionPool = new TransactionPool();
 const wallet = new Wallet();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const pubSub = new RedisPubSub({ blockchain, transactionPool });
 

@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useEffectOnce } from "./useEffectOnce-hook";
 
-export const useHttpClient = () => {
+export const useHttp = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<any>();
 
