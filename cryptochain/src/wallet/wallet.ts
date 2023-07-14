@@ -11,7 +11,7 @@ export default class Wallet {
 		this.balance = STARTING_BALANCE;
 
 		this.keyPair = ec.genKeyPair();
-		this.publicKey = this.keyPair.getPublic().encode("hex", false);
+		this.publicKey = this.keyPair.getPublic().encode("hex", true);
 	}
 
 	sign(data: any) {

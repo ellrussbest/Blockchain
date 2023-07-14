@@ -1,13 +1,11 @@
+import "./App.css";
 import { useEffect } from "react";
 import { useHttp } from "./hooks/useHttp";
-import { useSelector } from "./hooks/useSelector";
 import { useActions } from "./hooks/useAction";
+import { WalletInfo, Blocks } from "./components";
 
 function App() {
 	const { /*isLoading, error, clearError,*/ sendRequest } = useHttp();
-	const { walletInfo: info, blocks } = useSelector(
-		(state) => state.blockchain,
-	);
 	const { updateWalletInfo, updateBlocks } = useActions();
 
 	useEffect(() => {
@@ -38,7 +36,14 @@ function App() {
 		fetchBlocks();
 	}, [sendRequest]);
 
-	return <div>Hello world</div>;
+	return (
+		<div className="App">
+			<div>Welcome to the blockchain...</div>
+			<WalletInfo />
+			<br />
+			<Blocks />
+		</div>
+	);
 }
 
 export default App;
