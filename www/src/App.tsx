@@ -1,8 +1,21 @@
-import "./App.css";
 import { useEffect } from "react";
 import { useHttp } from "./hooks/useHttp";
 import { useActions } from "./hooks/useAction";
-import { WalletInfo, Blocks } from "./components";
+import { WalletInfo } from "./components";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Blocks } from "./components";
+
+const router = createBrowserRouter([
+	{
+		path: "/",
+		element: <WalletInfo />,
+		errorElement: <WalletInfo />,
+	},
+	{
+		path: "/blocks",
+		element: <Blocks />,
+	},
+]);
 
 function App() {
 	const { /*isLoading, error, clearError,*/ sendRequest } = useHttp();
@@ -38,10 +51,7 @@ function App() {
 
 	return (
 		<div className="App">
-			<div>Welcome to the blockchain...</div>
-			<WalletInfo />
-			<br />
-			<Blocks />
+			<RouterProvider router={router} />
 		</div>
 	);
 }
