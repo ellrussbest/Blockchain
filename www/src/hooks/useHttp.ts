@@ -1,6 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import { useEffectOnce } from "./useEffectOnce-hook";
 
+type METHOD = "GET" | "PUT" | "PATCH" | "DELETE" | "POST";
+
 export const useHttp = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<any>();
@@ -8,7 +10,15 @@ export const useHttp = () => {
 	const activeHttpRequest = useRef<AbortController[]>([]);
 
 	const sendRequest = useCallback(
-		async (url: string, method = "GET", body = null, headers = {}) => {
+		async (
+			url: string,
+			method: METHOD = "GET",
+			body: { [x: string]: any } | null = null,
+			headers: { [x: string]: string } = {},
+		) => {
+			const _body: BodyInit | undefined | null =
+				body === null ? body : JSON.stringify(body);
+
 			setIsLoading(true);
 			const httpAbortCtrl = new AbortController();
 
@@ -17,7 +27,7 @@ export const useHttp = () => {
 			try {
 				const response = await fetch(url, {
 					method,
-					body,
+					body: _body,
 					headers,
 					signal: httpAbortCtrl.signal,
 				});

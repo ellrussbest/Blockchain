@@ -4,7 +4,7 @@ const INITIAL_DIFFICULTY = 3;
 
 export const MINE_RATE = 1000;
 export const GENESIS_DATA = {
-	timestamp: "1",
+	timestamp: Date.UTC(2023, 6, 16, 0, 0, 0).toString(),
 	previousBlockHash: "-----",
 	hash: "hash-one",
 	data: [],

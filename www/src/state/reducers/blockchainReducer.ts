@@ -14,6 +14,7 @@ interface BlockchainState {
 		nonce: number;
 		difficulty: number;
 	}[];
+	url: string;
 }
 
 const initialState: BlockchainState = {
@@ -22,6 +23,7 @@ const initialState: BlockchainState = {
 		balance: undefined,
 	},
 	blocks: [],
+	url: "http://localhost:5000/api",
 };
 
 const reducer = (

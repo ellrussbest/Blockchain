@@ -32,8 +32,19 @@ const transactionMiner = new TransactionMiner({
 app.use(bodyParser.json());
 
 app.get("/api/blocks", (req, res, next) => {
-	res.json({
-		chain: blockchain.chain,
+	res.writeHead(200, {
+		"Content-Type": "text/event-stream",
+		"Cache-Control": "no-cache",
+		Connection: "keep-alive",
+	});
+
+	const interval = setInterval(() => {
+		res.write(`data: ${JSON.stringify({ chain: blockchain.chain })}\n\n`);
+	}, 1000);
+
+	req.on("close", () => {
+		clearInterval(interval);
+		res.end();
 	});
 });
 
@@ -82,7 +93,22 @@ app.post("/api/transact", (req, res, next) => {
 });
 
 app.get("/api/transaction-pool-map", (req, res, next) => {
-	res.json(transactionPool.transactionMap);
+	res.writeHead(200, {
+		"Content-Type": "text/event-stream",
+		"Cache-Control": "no-cache",
+		Connection: "keep-alive",
+	});
+
+	const interval = setInterval(() => {
+		res.write(
+			`data: ${JSON.stringify(transactionPool.transactionMap)}\n\n`,
+		);
+	}, 1000);
+
+	req.on("close", () => {
+		clearInterval(interval);
+		res.end();
+	});
 });
 
 app.get("/api/mine-transactions", (req, res, next) => {
@@ -93,12 +119,27 @@ app.get("/api/mine-transactions", (req, res, next) => {
 app.get("/api/wallet-info", (req, res, next) => {
 	const address = wallet.publicKey;
 
-	res.json({
-		address,
-		balance: Wallet.calculateBalance({
-			chain: blockchain.chain,
-			address,
-		}),
+	res.writeHead(200, {
+		"Content-Type": "text/event-stream",
+		"Cache-Control": "no-cache",
+		Connection: "keep-alive",
+	});
+
+	const interval = setInterval(() => {
+		res.write(
+			`data: ${JSON.stringify({
+				address,
+				balance: Wallet.calculateBalance({
+					chain: blockchain.chain,
+					address,
+				}),
+			})}\n\n`,
+		);
+	}, 1000);
+
+	req.on("close", () => {
+		clearInterval(interval);
+		res.end();
 	});
 });
 

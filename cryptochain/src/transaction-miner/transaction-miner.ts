@@ -25,20 +25,22 @@ export default class TransactionMiner {
 		// get the transaction pool's valid transactions
 		const validTransactions = this.transactionPool.validTransactions();
 
-		// generate the miner's reward
-		validTransactions.push(
-			new transaction.BlockRewardTx({
-				minerWallet: this.wallet,
-			}),
-		);
+		if (validTransactions.length > 0) {
+			// generate the miner's reward
+			validTransactions.push(
+				new transaction.BlockRewardTx({
+					minerWallet: this.wallet,
+				}),
+			);
 
-		// add a block consisting of these transactions to the blockchain
-		this.blockchain.addBlock(validTransactions);
+			// add a block consisting of these transactions to the blockchain
+			this.blockchain.addBlock(validTransactions);
 
-		// broadcast the updated blockchain
-		this.pubSub.broadcastChain();
+			// broadcast the updated blockchain
+			this.pubSub.broadcastChain();
 
-		// clear the pool
-		this.transactionPool.clear();
+			// clear the pool
+			this.transactionPool.clear();
+		}
 	}
 }

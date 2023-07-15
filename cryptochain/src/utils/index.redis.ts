@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { RedisPubSub, connect } from "../pubsub";
 import axios from "axios";
 import { TransactionMiner } from "../transaction-miner";
+import cors from "cors";
 import {
 	TransactionPool,
 	Wallet,
@@ -22,6 +23,7 @@ const transactionPool = new TransactionPool();
 const wallet = new Wallet();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 const pubSub = new RedisPubSub({ blockchain, transactionPool });
 
@@ -36,8 +38,21 @@ const transactionMiner = new TransactionMiner({
 	// we first want to connect to our redis api
 	if (await connect(pubSub)) {
 		app.get("/api/blocks", (req, res, next) => {
-			res.json({
-				chain: blockchain.chain,
+			res.writeHead(200, {
+				"Content-Type": "text/event-stream",
+				"Cache-Control": "no-cache",
+				Connection: "keep-alive",
+			});
+
+			const interval = setInterval(() => {
+				res.write(
+					`data: ${JSON.stringify({ chain: blockchain.chain })}\n\n`,
+				);
+			}, 1000);
+
+			req.on("close", () => {
+				clearInterval(interval);
+				res.end();
 			});
 		});
 
@@ -65,12 +80,13 @@ const transactionMiner = new TransactionMiner({
 						recipient,
 						amount,
 					});
-				} else {
+				} else if (transaction === undefined) {
 					transaction = wallet.createTransaction({
 						recipient,
 						amount,
 						chain: blockchain.chain,
 					});
+				} else {
 				}
 			} catch (error: any) {
 				res.status(400).json({
@@ -89,7 +105,24 @@ const transactionMiner = new TransactionMiner({
 		});
 
 		app.get("/api/transaction-pool-map", (req, res, next) => {
-			res.json(transactionPool.transactionMap);
+			res.writeHead(200, {
+				"Content-Type": "text/event-stream",
+				"Cache-Control": "no-cache",
+				Connection: "keep-alive",
+			});
+
+			const interval = setInterval(() => {
+				res.write(
+					`data: ${JSON.stringify(
+						transactionPool.transactionMap,
+					)}\n\n`,
+				);
+			}, 1000);
+
+			req.on("close", () => {
+				clearInterval(interval);
+				res.end();
+			});
 		});
 
 		app.get("/api/mine-transactions", (req, res, next) => {
@@ -100,12 +133,27 @@ const transactionMiner = new TransactionMiner({
 		app.get("/api/wallet-info", (req, res, next) => {
 			const address = wallet.publicKey;
 
-			res.json({
-				address,
-				balance: Wallet.calculateBalance({
-					chain: blockchain.chain,
-					address,
-				}),
+			res.writeHead(200, {
+				"Content-Type": "text/event-stream",
+				"Cache-Control": "no-cache",
+				Connection: "keep-alive",
+			});
+
+			const interval = setInterval(() => {
+				res.write(
+					`data: ${JSON.stringify({
+						address,
+						balance: Wallet.calculateBalance({
+							chain: blockchain.chain,
+							address,
+						}),
+					})}\n\n`,
+				);
+			}, 1000);
+
+			req.on("close", () => {
+				clearInterval(interval);
+				res.end();
 			});
 		});
 
