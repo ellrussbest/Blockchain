@@ -38,75 +38,73 @@ export const Blocks = () => {
 
   return (
     <>
-      <div>
-        <div style={{ margin: 10 }}>
-          <Link to="/">Back to Home</Link>
-        </div>
-        <h3>Blocks</h3>
-        {error && <div>Connection Error</div>}
-        {!error && blocks.length === 0 && <Spinner />}
-        {blocks.length !== 0 &&
-          blocks.map((block, i) => {
-            const { timestamp, hash, data } = block;
-            const stringifiedData = JSON.stringify(data);
-            const dataDisplay =
-              stringifiedData.length > 35
-                ? `${stringifiedData.substring(0, 35)}`
-                : stringifiedData;
-            const hashDisplay = hash.substring(0, 15);
+      <div style={{ margin: 10 }}>
+        <Link to="/">Back to Home</Link>
+      </div>
+      <h3>Blocks</h3>
+      {error && <div>Connection Error</div>}
+      {!error && blocks.length === 0 && <Spinner />}
+      {blocks.length !== 0 &&
+        blocks.map((block, i) => {
+          const { timestamp, hash, data } = block;
+          const stringifiedData = JSON.stringify(data);
+          const dataDisplay =
+            stringifiedData.length > 35
+              ? `${stringifiedData.substring(0, 35)}`
+              : stringifiedData;
+          const hashDisplay = hash.substring(0, 15);
 
-            // display data divs conditionally
-            const dataDiv =
-              toggleDisplay && divHash === hash ? (
-                <div>
-                  {data.map((transaction) => (
-                    <div key={transaction.id}>
-                      <hr />
-                      <Transaction transaction={transaction} />
-                    </div>
-                  ))}
-                  <br />
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={() => {
-                      setToggleDisplay(false);
-                      setDivHash("");
-                    }}
-                  >
-                    Show Less
-                  </Button>
-                </div>
-              ) : (
-                <div>
-                  <div>Data: {dataDisplay}</div>
-                  <Button
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={() => {
-                      setToggleDisplay(true);
-                      setDivHash(hash);
-                    }}
-                  >
-                    Show more
-                  </Button>
-                </div>
-              );
-
-            return (
-              <div key={block.hash} className="Block">
-                <div>
-                  Hash: {hashDisplay}
-                  {hashDisplay.length > 15 && "..."}
-                </div>
-                <div>
-                  Timestamp: {new Date(parseInt(timestamp)).toLocaleString()}
-                </div>
-                {dataDiv}
+          // display data divs conditionally
+          const dataDiv =
+            toggleDisplay && divHash === hash ? (
+              <div>
+                {data.map((transaction) => (
+                  <div key={transaction.id}>
+                    <hr />
+                    <Transaction transaction={transaction} />
+                  </div>
+                ))}
+                <br />
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => {
+                    setToggleDisplay(false);
+                    setDivHash("");
+                  }}
+                >
+                  Show Less
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <div>Data: {dataDisplay}</div>
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => {
+                    setToggleDisplay(true);
+                    setDivHash(hash);
+                  }}
+                >
+                  Show more
+                </Button>
               </div>
             );
-          })}
-      </div>
+
+          return (
+            <div key={block.hash} className="Block">
+              <div>
+                Hash: {hashDisplay}
+                {hashDisplay.length > 15 && "..."}
+              </div>
+              <div>
+                Timestamp: {new Date(parseInt(timestamp)).toLocaleString()}
+              </div>
+              {dataDiv}
+            </div>
+          );
+        })}
     </>
   );
 };

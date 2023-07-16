@@ -33,7 +33,7 @@ export const ConductTransaction = () => {
   };
 
   return (
-    <div>
+    <div className="ConductTransaction">
       <div style={{ marginBottom: 10 }}>
         <Link to="/">Back to Home</Link>
       </div>
@@ -46,6 +46,7 @@ export const ConductTransaction = () => {
             type="text"
             placeholder="Recipient"
             value={recipient}
+            className="text-center"
             onChange={(e) => setRecipient(e.target.value)}
           />
           <br />
@@ -53,6 +54,7 @@ export const ConductTransaction = () => {
             size="lg"
             type="number"
             placeholder="Amount"
+            className="text-center"
             value={amount}
             onChange={(e) => setAmount(parseInt(e.target.value))}
           />
