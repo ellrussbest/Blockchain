@@ -6,28 +6,13 @@ import { useHttp } from "../hooks/useHttp";
 import { useSelector } from "../hooks/useSelector";
 import { Toastify } from "./Toastify";
 
-enum MESSAGE {
-  ERROR = "Request Unsuccessful",
-  SUCCESS = "Transaction Successful",
-}
-
 export const ConductTransaction = () => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(0);
-  const [message, setMessage] = useState("");
   const [data, setData] = useState<any>();
   const { sendRequest, isLoading, error, clearError } = useHttp();
   const { url } = useSelector((selector) => selector.blockchain);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    !isLoading && error && setMessage(MESSAGE.ERROR);
-    !isLoading && !error && data && setMessage(MESSAGE.SUCCESS);
-
-    return () => {
-      error && clearError();
-    };
-  }, [message, isLoading, error, clearError, data]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,17 +57,25 @@ export const ConductTransaction = () => {
             onChange={(e) => setAmount(parseInt(e.target.value))}
           />
           <br />
-          <Toastify message={message}>
-            <Button
-              size="lg"
-              variant="outline-danger"
-              type="submit"
-              disabled={
-                recipient.length === 0 || amount <= 0 || Number.isNaN(amount)
-              }
-            >
-              Submit
-            </Button>
+          <Toastify
+            data={data}
+            clearError={clearError}
+            isLoading={isLoading}
+            error={error}
+          >
+            {(callback) => (
+              <Button
+                size="lg"
+                variant="outline-danger"
+                type="submit"
+                disabled={
+                  recipient.length === 0 || amount <= 0 || Number.isNaN(amount)
+                }
+                onClick={callback}
+              >
+                Submit
+              </Button>
+            )}
           </Toastify>
         </Form.Group>
       </Form>
