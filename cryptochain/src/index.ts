@@ -6,6 +6,8 @@ import { PubNubPubSub } from "./pubsub";
 import { TransactionMiner } from "./transaction-miner";
 import axios from "axios";
 import cors from "cors";
+import { onRequest } from "firebase-functions/v2/https";
+import logger from "firebase-functions/logger";
 import {
   TransactionPool,
   Wallet,
@@ -191,3 +193,5 @@ app.listen(PEER_PORT ?? process.env.DEFAULT_PORT, async () => {
 
   if (!!PEER_PORT) await syncChains();
 });
+
+onRequest(app);

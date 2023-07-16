@@ -2,14 +2,16 @@
   "name": "cryptochain",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest --watchAll --verbose --coverage src/",
     "dev": "npm run start-redis && nodemon dist/index.js",
     "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon dist/index.js",
     "start": "node dist/index.js",
     "build": "rimraf dist && tsc",
-    "start-redis": "redis-server --daemonize yes"
+    "start-redis": "redis-server --daemonize yes",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +29,9 @@
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
     "nodemon": "^2.0.22",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "firebase-admin": "^11.8.0",
+    "firebase-functions": "^4.3.1"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",
@@ -43,5 +47,8 @@
     "pubnub": "^7.2.3",
     "redis": "^4.6.7",
     "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": "18"
   }
 }
